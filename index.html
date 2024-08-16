@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データバインディング</title>
+</head>
+
+<body>
+    <div id="app">
+        <h1 data-bind="text: welcomeMessage"></h1>
+        <h2 data-bind="text: test_message"></h2>
+        <input type="text" data-bind="value: message" />
+        <p data-bind="text: message"></p>
+        <button data-bind="click: incrementCounter">加算するボタン</button>
+
+        <p data-bind="text: counter"></p>
+
+        <button data-bind="click: changeStyle">スタイル変更ボタン</button>
+        <p data-bind="style: customStyles">動的スタイルが取得されます</p>
+
+        <button onclick="test()">スタイル変更ボタン</button>
+    </div>
+
+    <script src="src/dist/BindingEngine-dist.js"></script>
+    <script>
+        const app = new BindingEngine('app');
+        const initialState = {
+            message: "Hello, World!",
+            counter: 0,
+            customStyles: {
+                color: "red",
+                backgroundColor: "yellow",
+                fontSize: "20px"
+            }
+        };
+        
+        app.defineMethod('incrementCounter', (stateManager) => {
+            stateManager.updateState('counter', stateManager.state.counter + 1);
+        });
+
+        app.defineMethod('changeStyle', (stateManager) => {
+            stateManager.updateState('customStyles', {
+                color: "blue",
+                backgroundColor: "lightgreen",
+                fontSize: "25px"
+            });
+        });
+
+        function test() {
+            //普通のonclickからももちろん変更できるが、今後もっと、defineMethodを拡張予定のため非推奨
+            app.stateManager.updateState('customStyles', {
+                color: "blue",
+                backgroundColor: "lightgreen",
+                fontSize: "15px"
+            });
+        }
+
+        app.bindState(initialState);
+
+        app.defineComputed("welcomeMessage", ["message"], (state) => {
+            return `Welcome: ${state.message}`;
+        });
+
+        app.defineComputed("test_message", ["message", "counter"], (state) => {
+            return `${state.message}:Counter:${state.counter}`;
+        });
+    </script>
+</body>
+
+</html>
